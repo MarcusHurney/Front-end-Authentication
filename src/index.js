@@ -2,14 +2,42 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import reduxThunk from 'redux-thunk';
 
 import App from './components/app';
+import Signin from './components/auth/signin';
+import Signup from './components/auth/signup';
+import Signout from './components/auth/signout';
+import Feature from './components/feature';
+import RequireAuth from './components/auth/require_auth';
+import Welcome from './components/welcome';
 import reducers from './reducers';
+import { AUTH_USER } from './actions/types';
 
-const createStoreWithMiddleware = applyMiddleware()(createStore);
+const createStoreWithMiddleware = applyMiddleware(reduxThunk)(createStore);
+const store = createStoreWithMiddleware(reducers);
 
+const token = localStorage.getItem('token');
+// If we have a token, consider the user to be signed in
+
+if (token) {
+  // we need to update application state
+  store.dispatch({ type: AUTH_USER }); //the dispatch method is located on store also
+}
+
+//wrapping any of these components with RequireAuth() will check for state.auth.authenticated being true before allowing access to the route
+//The Welcome component will render when sitting on the "/" home route
 ReactDOM.render(
-  <Provider store={createStoreWithMiddleware(reducers)}>
-    <App />
+  <Provider store={store}>
+    <Router history={browserHistory}>
+      <Route path="/" component={App}>
+        <IndexRoute component={Welcome} />
+        <Route path="signin" component={Signin} />
+        <Route path="signout" component={Signout} />
+        <Route path="signup" component={Signup} />
+        <Route path="feature" component={RequireAuth(Feature)} />
+      </Route>
+    </Router>
   </Provider>
   , document.querySelector('.container'));
