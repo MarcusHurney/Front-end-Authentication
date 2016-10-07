@@ -1,5 +1,5 @@
 {
-  "name": "Front-end Authentication",
+  "name": "front-end-authentication",
   "version": "1.0.0",
   "description": "Front-end authentication using Redux with React and Babel support",
   "main": "index.js",
